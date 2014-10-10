@@ -79,31 +79,37 @@
 //   }
 // };
 
-// // The "Safe Diamond Miner"
+// Bone Clinkz
+// this hero will help gank any enemies that are already outnumbered
 var move = function(gameData, helpers) {
-  var myHero = gameData.activeHero;
+   var myHero = gameData.activeHero;
+}
 
-  //Get stats on the nearest health well
-  var healthWellStats = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(boardTile) {
-    if (boardTile.type === 'HealthWell') {
-      return true;
-    }
-  });
-  var distanceToHealthWell = healthWellStats.distance;
-  var directionToHealthWell = healthWellStats.direction;
-  
-
-  if (myHero.health < 40) {
-    //Heal no matter what if low health
-    return directionToHealthWell;
-  } else if (myHero.health < 100 && distanceToHealthWell === 1) {
-    //Heal if you aren't full health and are close to a health well already
-    return directionToHealthWell;
-  } else {
-    //If healthy, go capture a diamond mine!
-    return helpers.findNearestNonTeamDiamondMine(gameData);
-  }
-};
+// // The "Safe Diamond Miner"
+//var move = function(gameData, helpers) {
+//  var myHero = gameData.activeHero;
+//
+//  //Get stats on the nearest health well
+//  var healthWellStats = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(boardTile) {
+//    if (boardTile.type === 'HealthWell') {
+//      return true;
+//    }
+//  });
+//  var distanceToHealthWell = healthWellStats.distance;
+//  var directionToHealthWell = healthWellStats.direction;
+//  
+//
+//  if (myHero.health < 40) {
+//    //Heal no matter what if low health
+//    return directionToHealthWell;
+//  } else if (myHero.health < 100 && distanceToHealthWell === 1) {
+//    //Heal if you aren't full health and are close to a health well already
+//    return directionToHealthWell;
+//  } else {
+//    //If healthy, go capture a diamond mine!
+//    return helpers.findNearestNonTeamDiamondMine(gameData);
+//  }
+//};
 
 // // The "Selfish Diamond Miner"
 // // This hero will attempt to capture diamond mines (even those owned by teammates).
