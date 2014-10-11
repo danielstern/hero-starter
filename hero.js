@@ -83,6 +83,35 @@
 var move = function(gameData, helpers) {
     console.info("*rattle rattle rattle*");
 
+    helpers.opposite = function(dir) {
+        if (dir === "North") return "South";
+        if (dir === "East") return "West";
+        if (dir === "South") return "North";
+        if (dir === "West") return "East";
+    }
+
+    helpers.getAggro = function(hero, target) {
+        var healthRating = target.health;
+        var proximityRating = helpers.getDistanceBetweenTwoHeroes(hero, target) * 20;
+
+        return healthRating + proximityRating;
+    }
+
+    helpers.getNumberOfCloseEnemies = function(hero,enemies) {
+      return enemies.filter(function(enemy){
+        return helpers.getDistanceBetweenTwoHeroes(hero,enemy) < 4;
+      }).length
+    }
+
+
+    helpers.getDistanceBetweenTwoHeroes = function(hero1, hero2) {
+        var y = Math.abs(hero1.distanceFromTop - hero2.distanceFromTop);
+        var x = Math.abs(hero1.distanceFromLeft - hero2.distanceFromLeft);
+
+        return y + x;
+
+    }
+
     var hero = gameData.activeHero;
     var healthWellStats = helpers.findNearestObjectDirectionAndDistance(gameData.board, hero, function(boardTile) {
         if (boardTile.type === 'HealthWell') {
@@ -92,7 +121,7 @@ var move = function(gameData, helpers) {
     var distanceToHealthWell = healthWellStats.distance;
     var directionToHealthWell = healthWellStats.direction;
 
-    if (hero.health < 40) {
+    if (hero.health < 50) {
         console.info("**rattle!!!*** (I must heal!)");
         return helpers.findNearestHealthWell(gameData);
     } else if (hero.health < 100 && distanceToHealthWell === 1) {
@@ -101,23 +130,35 @@ var move = function(gameData, helpers) {
     };
 
     var enemies = gameData.heroes.filter(function(enemy) {
-        return enemy.team !== hero.team
+        return enemy.team !== hero.team && !enemy.dead;
     });
     var allies = gameData.heroes.filter(function(enemy) {
         return enemy.team === hero.team
     });
 
-    var target = enemies.filter(function(enemy) {
+    if (helpers.getNumberOfCloseEnemies(hero,enemies) > 1) {
+      console.log("Run away!");
+      return helpers.opposite(helpers.findNearestEnemy(gameData));
+    }
+
+
+    var targets = enemies.filter(function(enemy) {
         return allies.some(function(ally) {
             return helpers.getDistanceBetweenTwoHeroes(ally, enemy) >= 3;
         });
-    }).reduce(function(prev, next) {
-        if (helpers.getAggro(hero, prev) > helpers.getAggro(hero, next)) {
-            return next;
-        } else {
-            return prev;
-        }
-    })
+    });
+
+    var target;
+
+    if (targets) {
+        target = targets.reduce(function(prev, next) {
+            if (helpers.getAggro(hero, prev) > helpers.getAggro(hero, next)) {
+                return next;
+            } else {
+                return prev;
+            }
+        })
+    }
 
     console.info("**shake rattle shake!!** (I will target...)", target.id);
     console.info("**hiss!!**", enemies.map(function(enemy) {
