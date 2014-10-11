@@ -79,30 +79,78 @@
 //   }
 // };
 
-// // The "Safe Diamond Miner"
+// // "Bone Clinkz"
 var move = function(gameData, helpers) {
-  var myHero = gameData.activeHero;
+    console.info("*rattle rattle rattle*");
 
-  //Get stats on the nearest health well
-  var healthWellStats = helpers.findNearestObjectDirectionAndDistance(gameData.board, myHero, function(boardTile) {
-    if (boardTile.type === 'HealthWell') {
-      return true;
+    var hero = gameData.activeHero;
+    var healthWellStats = helpers.findNearestObjectDirectionAndDistance(gameData.board, hero, function(boardTile) {
+        if (boardTile.type === 'HealthWell') {
+            return true;
+        }
+    });
+    var distanceToHealthWell = healthWellStats.distance;
+    var directionToHealthWell = healthWellStats.direction;
+
+    if (hero.health < 40) {
+        console.info("**rattle!!!*** (I must heal!)");
+        return helpers.findNearestHealthWell(gameData);
+    } else if (hero.health < 100 && distanceToHealthWell === 1) {
+        console.info("*shake shake*... (Time to heal.)");
+        return directionToHealthWell;
+    };
+
+    var enemies = gameData.heroes.filter(function(enemy) {
+        return enemy.team !== hero.team
+    });
+    var allies = gameData.heroes.filter(function(enemy) {
+        return enemy.team === hero.team
+    });
+
+    var target = enemies.filter(function(enemy) {
+        return allies.some(function(ally) {
+            return helpers.getDistanceBetweenTwoHeroes(ally, enemy) >= 3;
+        });
+    }).reduce(function(prev, next) {
+        if (helpers.getAggro(hero, prev) > helpers.getAggro(hero, next)) {
+            return next;
+        } else {
+            return prev;
+        }
+    })
+
+    console.info("**shake rattle shake!!** (I will target...)", target.id);
+    console.info("**hiss!!**", enemies.map(function(enemy) {
+        return {
+            id: enemy.id,
+            aggro: helpers.getAggro(hero, enemy),
+        }
+    }));
+
+    var pathInfoObject = helpers.findNearestObjectDirectionAndDistance(gameData.board, hero, function(enemyTile) {
+        return enemyTile.id === target.id;
+    })
+
+    // console.log("final directoin...",pathInfoObject);
+
+    if (!pathInfoObject) {
+        console.log("*shhhaaake*! (I will find gold");
+        return helpers.findNearestUnownedDiamondMine(gameData);
     }
-  });
-  var distanceToHealthWell = healthWellStats.distance;
-  var directionToHealthWell = healthWellStats.direction;
-  
 
-  if (myHero.health < 40) {
-    //Heal no matter what if low health
-    return directionToHealthWell;
-  } else if (myHero.health < 100 && distanceToHealthWell === 1) {
-    //Heal if you aren't full health and are close to a health well already
-    return directionToHealthWell;
-  } else {
-    //If healthy, go capture a diamond mine!
-    return helpers.findNearestNonTeamDiamondMine(gameData);
-  }
+    //Return the direction that needs to be taken to achieve the goal
+    return pathInfoObject.direction;
+
+    // if (myHero.health < 40) {
+    //   //Heal no matter what if low health
+    //   return directionToHealthWell;
+    // } else if (myHero.health < 100 && distanceToHealthWell === 1) {
+    //   //Heal if you aren't full health and are close to a health well already
+    //   return directionToHealthWell;
+    // } else {
+    //   //If healthy, go capture a diamond mine!
+    //   return helpers.findNearestNonTeamDiamondMine(gameData);
+    // }
 };
 
 // // The "Selfish Diamond Miner"

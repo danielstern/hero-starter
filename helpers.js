@@ -199,6 +199,14 @@ helpers.findNearestHealthWell = function(gameData) {
   return pathInfoObject.direction;
 };
 
+helpers.getAggro = function(hero,target) {
+ var healthRating = target.health;
+ var proximityRating = helpers.getDistanceBetweenTwoHeroes(hero,target) * 10;
+
+ return healthRating + proximityRating;
+}
+
+
 // Returns the direction of the nearest enemy with lower health
 // (or returns false if there are no accessible enemies that fit this description)
 helpers.findNearestWeakerEnemy = function(gameData) {
@@ -245,5 +253,13 @@ helpers.findNearestTeamMember = function(gameData) {
   //Return the direction that needs to be taken to achieve the goal
   return pathInfoObject.direction;
 };
+
+helpers.getDistanceBetweenTwoHeroes = function(hero1,hero2) {
+  var y = Math.abs(hero1.distanceFromTop - hero2.distanceFromTop);
+  var x = Math.abs(hero1.distanceFromLeft - hero2.distanceFromLeft);
+
+  return y + x;
+
+}
 
 module.exports = helpers;

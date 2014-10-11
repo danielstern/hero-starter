@@ -113,7 +113,8 @@ Hero.prototype.getCode = function() {
   if (idStr.length === 1) {
     idStr = '0' + idStr;
   }
-  return 'H' + idStr;
+
+  return ((this.team) ? 'A' : 'X') + idStr;
 };
 
 module.exports = Hero;
